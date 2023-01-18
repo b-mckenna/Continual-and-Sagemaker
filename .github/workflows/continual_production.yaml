@@ -1,0 +1,48 @@
+name: Continual on Production
+env:
+  CONTINUAL_API_KEY: ${{ secrets.CONTINUAL_API_KEY }}
+on:
+  push:
+    branches:
+      - main
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Set unique run ID
+        run: |
+          CONTINUAL_RUN_ID=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT
+          echo "Using run ID $CONTINUAL_RUN_ID"
+          echo "CONTINUAL_RUN_ID=$CONTINUAL_RUN_ID" >> $GITHUB_ENV
+      - name: Install
+        run: | 
+          python -m pip install 'continual>=2.0.0a'
+      - name: Verify setup
+        run: | 
+          which continual
+          continual --version
+          continual config show
+      - name: Run
+        run: |
+          python run.py
+      - name: Get Continual run URL
+        run: |
+          CONTINUAL_RUN_URL=$(python -c 'import continual; print(continual.Client().runs.get("'$CONTINUAL_RUN_ID'").continual_app_url)')
+          echo "$CONTINUAL_RUN_URL"
+          echo "CONTINUAL_RUN_URL=$CONTINUAL_RUN_URL" >> $GITHUB_ENV
+      - name: Add commit comment
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments \
+            -f body="Continual run: [$CONTINUAL_RUN_URL]($CONTINUAL_RUN_URL)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
