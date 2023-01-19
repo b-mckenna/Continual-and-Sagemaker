@@ -80,9 +80,8 @@ def calculate_metrics(y_test,y_pred):
 def create_confusion_matrix(name, y_test,y_pred):
 	plt.figure(figsize=(10,8))
 	sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
-	name = name
     file_path = "#s/"+name+".png" %os.getcwd()
-	plt.savefig(file_path)
+    plt.savefig(file_path)
     return file_path
 
 def run_experiment(experiment, name, model, X_train, y_train, y_test):
