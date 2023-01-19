@@ -42,6 +42,7 @@ jobs:
           python run.py
       - name: Get Continual run URL
         run: |
+          echo '$CONTINUAL_RUN_ID'
           CONTINUAL_RUN_URL=$(python -c 'import continual; print(continual.Client().runs.get("'$CONTINUAL_RUN_ID'").continual_app_url)')
           echo "$CONTINUAL_RUN_URL"
           echo "CONTINUAL_RUN_URL=$CONTINUAL_RUN_URL" >> $GITHUB_ENV
