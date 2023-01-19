@@ -80,27 +80,27 @@ def calculate_metrics(y_test,y_pred):
 def create_confusion_matrix(name, y_test,y_pred):
 	plt.figure(figsize=(10,8))
 	sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
-    file_path = "#s/"+name+".png" %os.getcwd()
-    plt.savefig(file_path)
-    return file_path
+	file_path = "%s/"+name+".png" %os.getcwd()
+	plt.savefig(file_path)
+	return file_path
 
 def run_experiment(experiment, name, model, X_train, y_train, y_test):
 	model.fit(X_train,y_train)
 
-	joblib.dump(model, open(name+"_model", "wb"))
+	#joblib.dump(model, open(name+"_model", "wb"))
 
 	# Test model
 	y_pred=model.predict(X_test)
 
 	metrics_dict = calculate_metrics(y_test, y_pred)
 	
-	file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
+	#file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
 
 	# Log confusion matrix, model, test metrics, and tags to experiment
-	experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
-    
-    # Log model to Continual
-	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
+	#experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
+	
+	# Log model to Continual
+	#experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
 
 	for i in metrics_dict:
 		experiment.metrics.create(key=i["key"], value=i["value"], direction=i["direction"], group_name=i["group_name"])
@@ -122,10 +122,11 @@ if __name__ == "__main__":
     dna_data = pd.read_csv(obj['Body'],sep='\t')
     
     # 
-    config = load_config(CONFIG_KEYS)
+    #config = load_config(CONFIG_KEYS)
 
     # Create and configure Continual client
-    client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
+    #client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
+    client = Client(api_key="apikey/4ca70a3a49c142f0a73be901a0b8bef8", endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
     run_id = os.environ.get("CONTINUAL_RUN_ID", None)
     run = client.runs.create(description="An example run", run_id=run_id)
     run.state == "ACTIVE"
@@ -178,12 +179,8 @@ if __name__ == "__main__":
     xgb_experiment.metadata.create(key="training_params", data=xgb_params)
     run_experiment(xgb_experiment, "xgb", xgb, X_train, y_train, y_test)
 
-    # Loading params
-    mnb_params = {
-			'alpha': 0.1
-    }
     # Train second algorithm
-    mnb = MultinomialNB(mnb_params)
+    mnb = MultinomialNB(alpha=0.1)
     
     # Create second experiment
     mnb_experiment = model_version.experiments.create()
