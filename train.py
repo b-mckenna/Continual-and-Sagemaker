@@ -124,10 +124,10 @@ if __name__ == "__main__":
     config = load_config(CONFIG_KEYS)
 
     # Create and configure Continual client
-    client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/dna_sequencing", environment="production",verify=False)
+    client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
     run_id = os.environ.get("CONTINUAL_RUN_ID", None)
     run = client.runs.create(description="An example run", run_id=run_id)
-    #run.state == "ACTIVE"
+    run.state == "ACTIVE"
     
     # Create model
     model = run.models.create("test_on_sagemaker")
