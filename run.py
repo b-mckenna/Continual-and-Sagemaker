@@ -9,7 +9,7 @@ import os
 # Create SageMaker session
 sagemaker_session = sagemaker.Session()
 
-role = sagemaker.get_execution_role()
+role = ${{ secrets.SG_ROLE }}
 
 s3 = boto3.client('s3')
 
