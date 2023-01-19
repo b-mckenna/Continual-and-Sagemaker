@@ -80,9 +80,9 @@ def calculate_metrics(y_test,y_pred):
 def create_confusion_matrix(name, y_test,y_pred):
 	plt.figure(figsize=(10,8))
 	sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
-    file_path = "%s/"+name+".png" %os.getcwd()
-    plt.savefig(file_path)
-    return file_path
+	file_path = "%s/"+name+".png" %os.getcwd()
+	plt.savefig(file_path)
+	return file_path
 
 def run_experiment(experiment, name, model, X_train, y_train, y_test):
 	model.fit(X_train,y_train)
@@ -94,12 +94,12 @@ def run_experiment(experiment, name, model, X_train, y_train, y_test):
 
 	metrics_dict = calculate_metrics(y_test, y_pred)
 	
-	file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
+	#file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
 
 	# Log confusion matrix, model, test metrics, and tags to experiment
-	experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
-    
-    # Log model to Continual
+	#experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
+	
+	# Log model to Continual
 	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
 
 	for i in metrics_dict:
