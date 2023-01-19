@@ -178,12 +178,8 @@ if __name__ == "__main__":
     xgb_experiment.metadata.create(key="training_params", data=xgb_params)
     run_experiment(xgb_experiment, "xgb", xgb, X_train, y_train, y_test)
 
-    # Loading params
-    mnb_params = {
-			'alpha': 0.1
-    }
     # Train second algorithm
-    mnb = MultinomialNB(mnb_params)
+    mnb = MultinomialNB(alpha=0.1)
     
     # Create second experiment
     mnb_experiment = model_version.experiments.create()
