@@ -9,7 +9,7 @@ import os
 # Create SageMaker session
 sagemaker_session = sagemaker.Session()
 
-role = ${{ secrets.SG_ROLE }}
+role = "arn:aws:iam::765936207681:role/service-role/AmazonSageMaker-ExecutionRole-20191217T155901"
 
 s3 = boto3.client('s3')
 
