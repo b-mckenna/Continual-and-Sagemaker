@@ -78,9 +78,9 @@ def calculate_metrics(y_test,y_pred):
 	return setup_metrics_dict(accuracy, f1, recall, precision)
 
 def create_confusion_matrix(name, y_test,y_pred):
-	plt.figure(figsize=(10,8))
-	sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
     file_path = "%s/" %os.getcwd()+name+"_confusion_matrix.png"
+    plt.figure(figsize=(10,8))
+    sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
     plt.savefig(file_path)
     return file_path
 
