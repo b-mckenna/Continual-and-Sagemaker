@@ -26,7 +26,7 @@ estimator = SKLearn(
     framework_version='1.0-1',
     py_version='py3',
     source_dir='.', 
-    environment={"CONTINUAL_APIKEY": continual_api_key}#, "CONTINUAL_RUN_ID": run_id}
+    environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id}
 )
 
 train_sklearn = "sklearn-training-job-{}".format(int(time.time()))
