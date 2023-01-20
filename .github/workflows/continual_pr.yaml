@@ -6,6 +6,9 @@ env:
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   Deploy:
     runs-on: ubuntu-latest
