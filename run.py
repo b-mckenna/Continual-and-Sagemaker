@@ -10,6 +10,8 @@ import os
 sagemaker_session = sagemaker.Session()
 
 role = os.environ.get("IAM_ROLE", None)
+print("IAM ROLE")
+print(role)
 
 s3 = boto3.client('s3')
 
