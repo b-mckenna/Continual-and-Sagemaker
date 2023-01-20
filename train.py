@@ -160,7 +160,7 @@ if __name__ == "__main__":
     
     # Loading params
     xgb_params = {
-			'max_depth': 4,
+			'max_depth': 3,
 			'eta': 0.1,
 			'num_class': 3,
 			'eval_metric': 'mae',
