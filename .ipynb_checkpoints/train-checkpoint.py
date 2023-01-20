@@ -80,7 +80,7 @@ def calculate_metrics(y_test,y_pred):
 def create_confusion_matrix(name, y_test,y_pred):
 	plt.figure(figsize=(10,8))
 	sns.heatmap(confusion_matrix(y_test,y_pred),annot=True,cmap='viridis')
-	file_path = "%s/"+name+".png" %os.getcwd()
+	file_path = "%s/"+name+"_confusion_matrix.png" %os.getcwd()
 	plt.savefig(file_path)
 	return file_path
 
@@ -94,10 +94,10 @@ def run_experiment(experiment, name, model, X_train, y_train, y_test):
 
 	metrics_dict = calculate_metrics(y_test, y_pred)
 	
-	#file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
+	file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
 
 	# Log confusion matrix, model, test metrics, and tags to experiment
-	#experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
+	experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
 	
 	# Log model to Continual
 	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
@@ -125,7 +125,6 @@ if __name__ == "__main__":
 
     # Create and configure Continual client
     client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
-    #client = Client(api_key="apikey/4ca70a3a49c142f0a73be901a0b8bef8", endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
     run_id = os.environ.get("CONTINUAL_RUN_ID", None)
     run = client.runs.create(description="An example run", run_id=run_id)
     run.state == "ACTIVE"
@@ -167,7 +166,6 @@ if __name__ == "__main__":
 			'eval_metric': 'mae',
 			'reg_alpha': 0.5
 	}
-    #max_depth=4, eta=0.1, num_class=3, eval_metric='mae', reg_alpha=0.5
 
     # Splitting the human dataset into the training set and test set
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, random_state=42)
