@@ -87,7 +87,7 @@ def create_confusion_matrix(name, y_test,y_pred):
 def run_experiment(experiment, name, model, X_train, y_train, y_test):
 	model.fit(X_train,y_train)
 
-	#joblib.dump(model, open(name+"_model", "wb"))
+	joblib.dump(model, open(name+"_model", "wb"))
 
 	# Test model
 	y_pred=model.predict(X_test)
@@ -100,7 +100,7 @@ def run_experiment(experiment, name, model, X_train, y_train, y_test):
 	#experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
 	
 	# Log model to Continual
-	#experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
+	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
 
 	for i in metrics_dict:
 		experiment.metrics.create(key=i["key"], value=i["value"], direction=i["direction"], group_name=i["group_name"])
