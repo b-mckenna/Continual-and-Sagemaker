@@ -14,6 +14,7 @@ role = "arn:aws:iam::765936207681:role/service-role/AmazonSageMaker-ExecutionRol
 s3 = boto3.client('s3')
 
 continual_api_key = 'apikey/4ca70a3a49c142f0a73be901a0b8bef8'
+run_id = os.environ.get("CONTINUAL_RUN_ID", None)
 
 # Create estimator
 estimator = SKLearn(
@@ -25,7 +26,7 @@ estimator = SKLearn(
     framework_version='1.0-1',
     py_version='py3',
     source_dir='.', 
-    environment={"CONTINUAL_APIKEY": continual_api_key}
+    environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id}
 )
 
 train_sklearn = "sklearn-training-job-{}".format(int(time.time()))

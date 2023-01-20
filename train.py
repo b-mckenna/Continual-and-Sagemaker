@@ -121,12 +121,11 @@ if __name__ == "__main__":
     obj = s3.get_object(Bucket = 'brendanbucket88',Key = 'dna_sequence_dataset/human.txt')
     dna_data = pd.read_csv(obj['Body'],sep='\t')
     
-    # 
-    #config = load_config(CONFIG_KEYS)
+    config = load_config(CONFIG_KEYS)
 
     # Create and configure Continual client
-    #client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
-    client = Client(api_key="apikey/4ca70a3a49c142f0a73be901a0b8bef8", endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
+    client = Client(api_key=config["CONTINUAL_APIKEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
+    #client = Client(api_key="apikey/4ca70a3a49c142f0a73be901a0b8bef8", endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
     run_id = os.environ.get("CONTINUAL_RUN_ID", None)
     run = client.runs.create(description="An example run", run_id=run_id)
     run.state == "ACTIVE"
