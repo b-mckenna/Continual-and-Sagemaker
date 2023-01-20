@@ -138,15 +138,13 @@ if __name__ == "__main__":
     dataset_version = dna_dataset.dataset_versions.create()
 
     # Profile data
-#    DataProfile.create(dna_data, ["sequence", "class"])
-    #dataset_stats = get_dataset_stats_entry_dict(
-    #    dna_data,
-    #    "sequence", 
-    #    ["class"],
-    #    "class",
-    #    "class"
-    #)
-    #dataset_version.create_data_profile(stats_entries=[dataset_stats])
+    dataset_version.data_profiles.create(
+        dataframes=[dna_data],
+        entry_names=["primary_dataset"],
+        datetime_columns=["sequence"], # Mush because this dataset doesn't have datetime cols
+        index_column="sequence",
+        time_index_column="sequence" # Mush because this dataset doesn't have a time index
+    )
 
     # Check data
     #checks = [dict(display_name = "my_data_check", success=True)]
