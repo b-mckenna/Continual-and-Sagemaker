@@ -2,3 +2,4 @@ continual==2.0.0a22
 xgboost==1.7.2
 matplotlib==3.6.2
 seaborn==0.12.1
+yaml
