@@ -116,7 +116,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # hyperparameters sent by the client are passed as command-line arguments to the script.
     parser.add_argument('--alpha', type=float, default=os.environ.get('SM_HP_ALPHA'))
-    
+    parser.add_argument('--max_depth', type=float, default=os.environ.get('SM_HP_MAX_DEPTH'))
+    parser.add_argument('--eta', type=float, default=os.environ.get('SM_HP_ETA'))
+    parser.add_argument('--num_class', type=float, default=os.environ.get('SM_HP_NUM_CLASS'))
+    parser.add_argument('--reg_alpha', type=float, default=os.environ.get('SM_HP_REG_ALPHA'))
+
     args, _ = parser.parse_known_args()
     
     CONFIG_KEYS = [
@@ -164,10 +168,10 @@ if __name__ == "__main__":
     
     # Loading params
     xgb_params = {
-			'max_depth': 3,
-			'eta': 0.1,
-			'num_class': 3,
-			'eval_metric': 'mae',
+			'max_depth': args.max_depth,
+			'eta': args.eta,
+			'num_class': args.num_class,
+			'eval_metric': args.eval_metric,
 			'reg_alpha': args.alpha
 	}
 
