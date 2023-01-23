@@ -113,11 +113,11 @@ def get_metric_id(experiment, key):
             return exp.value
 
 if __name__ == "__main__":
-    #parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
     # hyperparameters sent by the client are passed as command-line arguments to the script.
-    #parser.add_argument('--alpha', type=float, default=os.environ.get('SM_HP_ALPHA'))
+    parser.add_argument('--alpha', type=float, default=os.environ.get('SM_HP_ALPHA'))
     
-    #args, _ = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
     
     CONFIG_KEYS = [
     "CONTINUAL_APIKEY"
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 			'eta': 0.1,
 			'num_class': 3,
 			'eval_metric': 'mae',
-			'reg_alpha': 0.1 #args.alpha
+			'reg_alpha': args.alpha
 	}
 
     # Splitting the human dataset into the training set and test set
