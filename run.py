@@ -16,7 +16,7 @@ s3 = boto3.client('s3')
 continual_api_key = os.environ.get("CONTINUAL_API_KEY", None)
 run_id = os.environ.get("CONTINUAL_RUN_ID", None)
 
-alpha = 0.1
+#alpha = 0.1
 
 # Create estimator
 estimator = SKLearn(
@@ -28,8 +28,8 @@ estimator = SKLearn(
     framework_version='1.0-1',
     py_version='py3',
     source_dir='.', 
-    environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id},
-    hyperparameters={'alpha': alpha}
+    environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id}#,
+    #hyperparameters={'alpha': alpha}
 )
 
 train_sklearn = "sklearn-training-job-{}".format(int(time.time()))
