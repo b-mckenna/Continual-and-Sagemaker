@@ -2,7 +2,7 @@ environment:
     sm_role: "arn:aws:iam::765936207681:role/service-role/AmazonSageMaker-ExecutionRole-20191217T155901"
 train:
     alpha: 0.1
-    max_dept: 3
+    max_depth: 3
     eta: 0.1
     num_class: 3
     eval_metric: 'mae'

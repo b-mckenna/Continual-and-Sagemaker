@@ -17,7 +17,7 @@ role = config['environment']['sm_role']
 
 # Model params
 alpha = config['train']['alpha']
-max_dept = config['train']['max_dept']
+max_depth = config['train']['max_depth']
 eta = config['train']['eta']
 num_class = config['train']['num_class']
 eval_metric = config['train']['eval_metric']
@@ -37,7 +37,7 @@ estimator = SKLearn(
     py_version='py3',
     source_dir='.', 
     environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id},
-    hyperparameters={'alpha': alpha, 'max_dept':max_dept, 'eta':eta, 'num_class':num_class, 'eval_metric':eval_metric}
+    hyperparameters={'alpha': alpha, 'max_depth':max_depth, 'eta':eta, 'num_class':num_class, 'eval_metric':eval_metric}
 )
 
 train_sklearn = "sklearn-training-job-{}".format(int(time.time()))
