@@ -136,7 +136,7 @@ if __name__ == "__main__":
     run.state == "ACTIVE"
     
     # Create model
-    model = run.models.create("test_on_sagemaker")
+    model = run.models.create("test-on-sagemaker")
     model_version = model.model_versions.create()
     
     # Create dataset object and load data from local text file
