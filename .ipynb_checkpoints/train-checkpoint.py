@@ -161,10 +161,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # hyperparameters sent by the client are passed as command-line arguments to the script.
     parser.add_argument('--alpha', type=float, default=os.environ.get('SM_HP_ALPHA'))
-    parser.add_argument('--max_depth', type=float, default=os.environ.get('SM_HP_MAX_DEPTH'))
+    parser.add_argument('--max_depth', type=int, default=os.environ.get('SM_HP_MAX_DEPTH'))
     parser.add_argument('--eta', type=float, default=os.environ.get('SM_HP_ETA'))
-    parser.add_argument('--num_class', type=float, default=os.environ.get('SM_HP_NUM_CLASS'))
-    parser.add_argument('--eval_metric', type=float, default=os.environ.get('SM_HP_EVAL_METRIC'))
+    parser.add_argument('--num_class', type=int, default=os.environ.get('SM_HP_NUM_CLASS'))
+    parser.add_argument('--eval_metric', type=str, default=os.environ.get('SM_HP_EVAL_METRIC'))
 
     args, _ = parser.parse_known_args()
     
