@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   id-token: write
-  contents: write|read
+  contents: write
 jobs:
   Deploy:
     runs-on: ubuntu-latest
