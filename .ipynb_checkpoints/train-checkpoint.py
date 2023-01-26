@@ -36,47 +36,6 @@ def transform(human_data):
 	X = cv.fit_transform(human_texts)
 	return X, y
 
-def setup_metrics_dict(accuracy, f1, recall, precision):
-	# Create metrics
-	metric_dicts = [
-		dict(
-			key="accuracy",
-			value=accuracy,
-			direction="HIGHER",
-			group_name="test",
-			step=1,
-		),
-		dict(
-			key="precision",
-			value=precision,
-			direction="HIGHER",
-			group_name="test",
-			step=1,
-		),
-		dict(
-			key="f1",
-			value=f1,
-			direction="HIGHER",
-			group_name="test",
-			step=1,
-		),
-		dict(
-			key="recall",
-			value=recall,
-			direction="HIGHER",
-			group_name="test",
-			step=1,
-		),
-	]
-	return metric_dicts
-
-def calculate_metrics(y_test,y_pred):
-	accuracy = accuracy_score(y_test,y_pred)
-	precision=precision_score(y_test,y_pred,average='weighted')
-	recall=recall_score(y_test,y_pred,average='weighted')
-	f1=f1_score(y_test,y_pred,average='weighted')
-	return setup_metrics_dict(accuracy, f1, recall, precision)
-
 def create_confusion_matrix(name, y_test,y_pred):
     file_path = "%s/" %os.getcwd()+name+"_confusion_matrix.png"
     plt.figure(figsize=(10,8))
@@ -91,8 +50,6 @@ def run_experiment(experiment, name, model, X_train, y_train, y_test):
 
 	# Test model
 	y_pred=model.predict(X_test)
-
-	metrics_dict = calculate_metrics(y_test, y_pred)
 	
 	file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
 
@@ -101,9 +58,15 @@ def run_experiment(experiment, name, model, X_train, y_train, y_test):
 	
 	# Log model to Continual
 	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
+	accuracy = experiment.metrics.create(id="accuracy", display_name="my accuracy")
+	precision = experiment.metrics.create(id="precision", display_name="my precision")
+	recall = experiment.metrics.create(id="recall", display_name="my recall")
+	f1 = experiment.metrics.create(id="f1", display_name="my f1")
 
-	for i in metrics_dict:
-		experiment.metrics.create(key=i["key"], value=i["value"], direction=i["direction"], group_name=i["group_name"])
+	accuracy.log(value=accuracy_score(y_test,y_pred))
+	precision.log(value=precision_score(y_test,y_pred,average='weighted'))
+	recall.log(value=recall_score(y_test,y_pred,average='weighted'))
+	f1.log(value=f1_score(y_test,y_pred,average='weighted'))
 
 	experiment.tags.create(key="algo", value=name)
 
@@ -135,16 +98,17 @@ if __name__ == "__main__":
     model_version = model.model_versions.create()
     
     # Create dataset object and load data from local text file
-    dna_dataset = run.datasets.create("DNA")
+    run.datasets.create("DNA")
+    dna_dataset = run.datasets.get("DNA")
     dataset_version = dna_dataset.dataset_versions.create()
 
     # Profile data
     dataset_version.data_profiles.create(
         dataframes=[dna_data],
         entry_names=["primary_dataset"],
-        datetime_columns=["sequence"], # Mush because this dataset doesn't have datetime cols
+        datetime_columns=[], # Mush because this dataset doesn't have datetime cols
         index_column="sequence",
-        time_index_column="sequence" # Mush because this dataset doesn't have a time index
+        time_index_column=None # Mush because this dataset doesn't have a time index
     )
 
     # Check data
