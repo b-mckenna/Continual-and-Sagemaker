@@ -14,6 +14,7 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
+import tempfile
 
 def load_config(CONFIG_KEYS):
     config = {}
@@ -44,37 +45,45 @@ def create_confusion_matrix(name, y_test,y_pred):
     return file_path
 
 def run_experiment(experiment, name, model, X_train, y_train, y_test):
-	model.fit(X_train,y_train)
-
-	joblib.dump(model, open(name+"_model", "wb"))
-
-	# Test model
-	y_pred=model.predict(X_test)
-	
-	file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
-
-	# Log confusion matrix, model, test metrics, and tags to experiment
-	experiment.artifacts.create(key=name+"_confusion_matrix", path=file_path, type="graph")
-	
-	# Log model to Continual
-	experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
-	accuracy = experiment.metrics.create(id="accuracy", display_name="my accuracy")
-	precision = experiment.metrics.create(id="precision", display_name="my precision")
-	recall = experiment.metrics.create(id="recall", display_name="my recall")
-	f1 = experiment.metrics.create(id="f1", display_name="my f1")
-
-	accuracy.log(value=accuracy_score(y_test,y_pred))
-	precision.log(value=precision_score(y_test,y_pred,average='weighted'))
-	recall.log(value=recall_score(y_test,y_pred,average='weighted'))
-	f1.log(value=f1_score(y_test,y_pred,average='weighted'))
-
-	experiment.tags.create(key="algo", value=name)
+    model.fit(X_train,y_train)
+    #joblib.dump(model, open(name+"_model", "wb"))
+    # Test model
+    y_pred=model.predict(X_test)
+    file_path = create_confusion_matrix(name+"_confusion_matrix", y_test, y_pred)
+    # Log confusion matrix, model, test metrics, and tags to experiment
+    experiment.artifacts.create(name+"_confusion_matrix", file_path, "graph")
+    # Log model to Continual
+    experiment.artifacts.create(name+'_model',name+'_model', external=False, upload=True)
+    accuracy = experiment.metrics.create(id="accuracy", display_name="my accuracy")
+    precision = experiment.metrics.create(id="precision", display_name="my precision")
+    recall = experiment.metrics.create(id="recall", display_name="my recall")
+    f1 = experiment.metrics.create(id="f1", display_name="my f1")
+    accuracy.log(value=accuracy_score(y_test,y_pred))
+    precision.log(value=precision_score(y_test,y_pred,average='weighted'))
+    recall.log(value=recall_score(y_test,y_pred,average='weighted'))
+    f1.log(value=f1_score(y_test,y_pred,average='weighted'))
+    return model
 
 def get_metric_id(experiment, key):
     for exp in experiment.metrics.list(page_size=10):
         if exp.key == key:
             return exp.value
-
+        
+def register_winning_experiment(mnb_model, xgb_model, mnb_accuracy, xgb_accuracy, mnb_experiment, xgb_experiment, model_version):
+    if mnb_accuracy>xgb_accuracy:
+        model_version.artifacts.create('mnb-model','mnb-model',upload=True,external=False)
+        model_version.metadata.create("best-experiment",mnb_experiment.name)
+        model_version.metrics.create(id='accuracy',display_name='accuracy').log(mnb_experiment.metrics.get('accuracy').values[0].value,update_if_exists=True)
+        return mnb_model
+    elif mnb_accuracy<xgb_accuracy:
+        model_version.artifacts.create('xgb-model','xgb-model',upload=True,external=False)
+        model_version.metadata.create('best-experiment',xgb_experiment.name)
+        model_version.metrics.create('accuracy','accuracy').log(xgb_experiment.metrics.get('accuracy').values[0].value,update_if_exists=True)
+        return xgb_model
+    else:
+        model_version.artifacts.create('mnb-model','mnb-model',upload=True,external=False)
+        return mnb_model
+    
 if __name__ == "__main__":
     
     CONFIG_KEYS = [
@@ -98,26 +107,15 @@ if __name__ == "__main__":
     model_version = model.model_versions.create()
     
     # Create dataset object and load data from local text file
-    run.datasets.create("DNA")
-    dna_dataset = run.datasets.get("DNA")
-    dataset_version = dna_dataset.dataset_versions.create()
-
-    # Profile data
-    dataset_version.data_profiles.create(
-        dataframes=[dna_data],
-        entry_names=["primary_dataset"],
-        datetime_columns=[], # Mush because this dataset doesn't have datetime cols
-        index_column="sequence",
-        time_index_column=None # Mush because this dataset doesn't have a time index
-    )
-
     # Check data
     #checks = [dict(display_name = "my_data_check", success=True)]
     #dataset_version.create_data_checks(checks)
 
     # Log dataset 
+    dataset = run.datasets.create(display_name="my_dataset", description="DNA sequencing dataset")
+    dataset_version = dataset.dataset_versions.create()
     artifact_uri = 's3://brendanbucket88/dna_sequence_dataset/human.txt'
-    dataset_version.artifacts.create(key = "dna_data", url=artifact_uri, type="csv", external=True)
+    dataset_version.artifacts.create("dna-data", url=artifact_uri, external=True)
 
     X, y = transform(dna_data)
     
@@ -146,12 +144,52 @@ if __name__ == "__main__":
     
     # Create experiment
     xgb_experiment = model_version.experiments.create()
-    xgb_experiment.metadata.create(key="training_params", data=xgb_params)
-    run_experiment(xgb_experiment, "xgb", xgb, X_train, y_train, y_test)
+    xgb_experiment.metadata.create("training-params", data=xgb_params)
+    xgb_model = run_experiment(xgb_experiment, "xgb", xgb, X_train, y_train, y_test)
 
     # Train second algorithm
     mnb = MultinomialNB(alpha=0.1)
     
     # Create second experiment
     mnb_experiment = model_version.experiments.create()
-    run_experiment(mnb_experiment, "mnb", mnb, X_train, y_train, y_test)
+    mnb_model = run_experiment(mnb_experiment, "mnb", mnb, X_train, y_train, y_test)
+    
+    # Retrieve accuracy metrics from Continual
+    xgb_accuracy = xgb_experiment.metrics.get("accuracy").values[0].value
+    mnb_accuracy = mnb_experiment.metrics.get("accuracy").values[0].value
+    
+    final_model = register_winning_experiment(mnb_model, xgb_model, mnb_accuracy, xgb_accuracy, mnb_experiment, xgb_experiment, model_version)
+    
+    # Evaluate performance
+    #if xgb_experiment.metrics.get("accuracy").values[0].value > mnb_experiment.metrics.get("accuracy").values[0].value:
+    #    print("test1")
+    ##    model_version.artifacts.create(xgb_experiment.name,xgb_experiment.name, upload=True, external=False)
+    #    print("test2")
+    #    model_version.metadata.create("best-exp-name", xgb_experiment.name)
+    #   print("test3")
+    #    final_model = xgb_model
+    #else:
+    #    print("test1")
+    #    model_version.artifacts.create(mnb_experiment.name,xgb_experiment.name, upload=True, external=False)
+    #    print("test2")
+    #    model_version.metadata.create("best-exp-name", mnb_experiment.name)
+    #    print("test3")
+    #    final_model = mnb_model
+       
+    # Save model
+    joblib.dump(final_model, "/opt/ml/model/final_model.joblib")
+    # you can dump it in .sav or .pkl format 
+    loc = 'models/' # THIS is the change to make the code work
+    #projects/dna_sequencing/environments/production/runs/cf8pv4tsct60mj9o9fqg
+    model_filename = '.sav'  # use any extension you want (.pkl or .sav)
+    rid = model_version.run.split('/')[5]
+    OutputFile = loc + str(rid) + model_filename
+
+    # WRITE
+    with tempfile.TemporaryFile() as fp:
+        joblib.dump(final_model, fp)
+        # use bucket_name and OutputFile - s3 location path in string format.
+        s3.put_object(Bucket='brendanbucket88', Key=OutputFile, Body=fp.read())
+
+        
+    
