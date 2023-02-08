@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import os
 import yaml
+from sklearn.feature_extraction.text import CountVectorizer
 
 with open('params.yaml') as config_file:
     config = yaml.safe_load(config_file)
@@ -15,18 +16,18 @@ sagemaker_session = sagemaker.Session()
 s3 = boto3.client('s3')
 role = config['environment']['sm_role']
 
-# Model params
+# Read model params from yaml
 alpha = config['train']['alpha']
 max_depth = config['train']['max_depth']
 eta = config['train']['eta']
 num_class = config['train']['num_class']
 eval_metric = config['train']['eval_metric']
 
-# Continual params
+# Read Continual params from OS
 continual_api_key = os.environ.get("CONTINUAL_API_KEY", None)
 run_id = os.environ.get("CONTINUAL_RUN_ID", None)
 
-# Create estimator
+# Create estimator object
 estimator = SKLearn(
     entry_point='train.py',
     role=role,
@@ -36,18 +37,18 @@ estimator = SKLearn(
     framework_version='1.0-1',
     py_version='py3',
     source_dir='.',
-    environment={"CONTINUAL_APIKEY": continual_api_key, "CONTINUAL_RUN_ID": run_id},
+    environment={"CONTINUAL_API_KEY": continual_api_key, "CONTINUAL_RUN_ID": run_id},
     hyperparameters={'alpha': alpha, 'max_depth':max_depth, 'eta':eta, 'num_class':num_class, 'eval_metric':eval_metric}
 )
 
 train_sklearn = "sklearn-training-job-{}".format(int(time.time()))
 
+# Training
 estimator.fit(job_name=train_sklearn)
 
-# to create model
+# Deploy real-time endpoint
 model = estimator.create_model()
-# to deploy
-predictor = estimator.deploy(initial_instance_count=1,instance_type='ml.m4.xlarge',endpoint_name='geneclassificationendpoint')
+predictor = estimator.deploy(initial_instance_count=1,instance_type='ml.m4.xlarge',endpoint_name='prod-endpoint')
 
-# to predict
-print(predictor.predict("ATGCCCCAACTAAATACCGCCGTATGACCCACCATAATTACCCCCATACTCCTGACACTATTTCTCGTCACCCAACTAAAAATATTAAATTCAAATTACCATCTACCCCCCTCACCAAAACCCATAAAAATAAAAAACTACAATAAACCCTGAGAACCAAAATGAACGAAAATCTATTCGCTTCATTCGCTGCCCCCACAATCCTAG"))
+# For demo purposes, make sure to delete endpoint and endpoint configuration
+predictor.delete_endpoint(endpoint_name='prod-endpoint')
