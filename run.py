@@ -51,4 +51,4 @@ model = estimator.create_model()
 predictor = estimator.deploy(initial_instance_count=1,instance_type='ml.m4.xlarge',endpoint_name='prod-endpoint')
 
 # For demo purposes, make sure to delete endpoint and endpoint configuration
-predictor.delete_endpoint(endpoint_name='prod-endpoint')
+predictor.delete_endpoint('prod-endpoint')
