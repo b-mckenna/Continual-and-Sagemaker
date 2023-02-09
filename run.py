@@ -52,3 +52,4 @@ predictor = estimator.deploy(initial_instance_count=1,instance_type='ml.m4.xlarg
 
 # For demo purposes, make sure to delete endpoint and endpoint configuration
 predictor.delete_endpoint('prod-endpoint')
+predictor.delete_endpoint_config('prod-endpoint')
