@@ -18,6 +18,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::765936207681:role/github-iam-role
+          role-session-name: OIDCsession
+          aws-region: us-east-1
       - name: Set unique run ID
         run: |
           CONTINUAL_RUN_ID=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT
@@ -25,7 +31,10 @@ jobs:
           echo "CONTINUAL_RUN_ID=$CONTINUAL_RUN_ID" >> $GITHUB_ENV
       - name: Install
         run: | 
-          python -m pip install 'continual>=2.0.0a'
+          python -m pip install 'continual>=2.0.0a28'
+          python -m pip install sagemaker==2.123.0
+          python -m pip install sagemaker-experiments
+          python -m pip install boto3>=1.15.0
       - name: Verify setup
         run: | 
           which continual
