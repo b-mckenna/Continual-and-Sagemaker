@@ -110,8 +110,8 @@ if __name__ == "__main__":
     run = client.runs.create(description="An example run", id=run_id)
     
     # Create model
-    model = run.models.create("Gene-Classification")
-    model_version = model.model_versions.create()
+    model = run.models.create("Gene-Classification", replace_if_exists=True)
+    model_version = model.model_versions.create(replace_if_exists=True)
 
     # Log dataset 
     dataset = run.datasets.create(display_name="HumanDNA", description="DNA sequencing dataset")
