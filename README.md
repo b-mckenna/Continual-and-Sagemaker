@@ -1,4 +1,5 @@
-# Continual-and-Sagemaker
+# Classifying DNA Sequences into Gene Families using Sagemaker
+Read the [blog post](https://continual.ai/post/classifying-dna-sequences-into-gene-families-on-sagemaker) corresponding to this repo. 
 
 To step through this tutorial yourself: 
 
