@@ -81,12 +81,12 @@ def register_winning_experiment(mnb_model, xgb_model, mnb_accuracy, xgb_accuracy
     if mnb_accuracy>xgb_accuracy:
         model_version.artifacts.create('mnb-model','mnb-model',upload=True,external=False)
         model_version.metadata.create("best-experiment",mnb_experiment.name)
-        model_version.metrics.create(id='accuracy',display_name='accuracy').log(mnb_experiment.metrics.get('accuracy').values[0].value,update_if_exists=True)
+        model_version.metrics.create(id='accuracy',display_name='accuracy').log(mnb_experiment.metrics.get('accuracy').values[0].value,replace_if_exists=True)
         return mnb_model
     elif mnb_accuracy<xgb_accuracy:
         model_version.artifacts.create('xgb-model','xgb-model',upload=True,external=False)
         model_version.metadata.create('best-experiment',xgb_experiment.name)
-        model_version.metrics.create('accuracy','accuracy').log(xgb_experiment.metrics.get('accuracy').values[0].value,update_if_exists=True)
+        model_version.metrics.create('accuracy','accuracy').log(xgb_experiment.metrics.get('accuracy').values[0].value,replace_if_exists=True)
         return xgb_model
     else:
         model_version.artifacts.create('mnb-model','mnb-model',upload=True,external=False)
