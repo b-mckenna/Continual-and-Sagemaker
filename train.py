@@ -105,7 +105,7 @@ if __name__ == "__main__":
     config = load_config(CONFIG_KEYS)
 
     # Create and configure Continual client
-    client = Client(api_key=config["CONTINUAL_API_KEY"], endpoint="https://sdk.continual.ai", project="projects/scikit_learn_github_actio_9", environment="production",verify=False)
+    client = Client(api_key=config["CONTINUAL_API_KEY"], endpoint="https://sdk.continual.ai", project="projects/continual-and-sagemaker", environment="production",verify=False)
     run_id = os.environ.get("CONTINUAL_RUN_ID", None)
     run = client.runs.create(description="An example run", id=run_id)
     
