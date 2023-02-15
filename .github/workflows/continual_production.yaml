@@ -43,7 +43,7 @@ jobs:
           continual config show
       - name: Run
         run: |
-          python continual/deploy.py
+          python run.py
       - name: Get Continual run URL
         run: |
           CONTINUAL_RUN_URL=$(python -c 'import continual; print(continual.Client().runs.get("'$CONTINUAL_RUN_ID'").continual_app_url)')
